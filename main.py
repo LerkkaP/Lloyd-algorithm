@@ -1,18 +1,10 @@
-import pandas as pd
+from sklearn.datasets import make_blobs
 import kmeans
-from plot import plot_clusters_1d
+from plot import plot_clusters_2d
 
-data = [1.0, 2.0, 3.5, 10.0, 12.0, 11.5]
-k = 2
+k = 3
+X, y = make_blobs(n_samples=300, n_features=2, centers=3, cluster_std=1.0, random_state=42)
 
-df = pd.read_csv("data/mall_customers.csv")
-annual_incomes = df["Annual Income (k$)"]
+clusters = kmeans.kMeansClustering(k, X.tolist())
+plot_clusters_2d(k, clusters)
 
-data = annual_incomes
-k = 10
-
-clusters = kmeans.kMeansClustering(k, data)
-plot_clusters_1d(k, clusters)
-
-for i, cluster in enumerate(clusters):
-    print(f"Cluster {i}: {cluster}")

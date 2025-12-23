@@ -7,47 +7,45 @@
 #include <random>
 #include <unordered_set>
 
-int getClosestCluster(double point, const std::vector<double> &centroids);
-double getNewCentroid(const std::vector<double> &cluster);
-std::vector<std::vector<double>> kMeansClustering(const int k, const std::vector<double> &data);
-std::vector<double> initializeCentroids(const int k, const std::vector<double> &data);
+int getClosestCluster(std::array<double, 2> point, const std::vector<std::array<double, 2>> &centroids);
+std::array<double, 2> getNewCentroid(const std::vector<std::array<double,2>> &cluster);
+std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data);
+std::vector<std::array<double, 2>> initializeCentroids(const int k, const std::vector<std::array<double, 2>> &data);
 
-std::vector<std::vector<double>> kMeansClustering(const int k, const std::vector<double> &data)
+std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data)
 {   
-    std::vector<double> centroids{initializeCentroids(k, data)};
-    std::vector<std::vector<double>> clusters(k);
+    std::vector<std::array<double, 2>> centroids{initializeCentroids(k, data)};
+    std::vector<std::vector<std::array<double,2>>> clusters(k);
     
     int iterations { };
     constexpr int max_iters { 10 };
 
     while (iterations <= max_iters) {
         // Start with empty clusters at each iteration
-        clusters = std::vector<std::vector<double>>(k);
+        clusters = std::vector<std::vector<std::array<double,2>>>(k);
 
         // Assign point to nearest cluster
-        for (double point : data) {
+        for (std::array<double, 2> point : data) {
             int closestCluster = getClosestCluster(point, centroids);
             clusters[closestCluster].push_back(point);
         }
 
         // Update centroids
-        centroids.clear();
-        for (const std::vector<double> &cluster : clusters) {
-            double newMean = getNewCentroid(cluster);
-            centroids.push_back(newMean);
+        for (int i = 0; i < k; ++i) {
+            centroids[i] = getNewCentroid(clusters[i]);
         }
         ++iterations;
     }
     return clusters;
 }
 
-int getClosestCluster(double point, const std::vector<double> &centroids) 
+int getClosestCluster(std::array<double, 2> point, const std::vector<std::array<double, 2>> &centroids) 
 {
     double minDistance = std::numeric_limits<double>::max();
     int closestCluster { -1 };
 
     for (int i = 0; i < centroids.size(); ++i) {
-        double distance = abs(point - centroids[i]);
+        double distance = sqrt(pow(point[0] - centroids[i][0], 2) + pow(point[1] - centroids[i][1], 2));
         if (distance < minDistance) {
             minDistance = distance;
             closestCluster = i;
@@ -56,24 +54,32 @@ int getClosestCluster(double point, const std::vector<double> &centroids)
     return closestCluster;
 }
 
-double getNewCentroid(const std::vector<double> &cluster) {
-    double newMean = std::reduce(cluster.begin(), cluster.end(), 0.0) / cluster.size();
-    return newMean;
+std::array<double, 2> getNewCentroid(const std::vector<std::array<double,2>> &cluster) {
+    std::array<double, 2> newMean{0.0, 0.0};      
+    if (cluster.empty()) return newMean;         
+
+    for (auto &point : cluster) {                 
+        newMean[0] += point[0];                  
+        newMean[1] += point[1];                  
+    }
+
+    newMean[0] /= cluster.size();                
+    newMean[1] /= cluster.size();                
+    return newMean;                               
 }
 
-std::vector<double> initializeCentroids(const int k, const std::vector<double> &data)
+std::vector<std::array<double, 2>> initializeCentroids(const int k, const std::vector<std::array<double,2>> &data)
 {
-    std::vector<double> centroids{};
-    std::unordered_set<double> seen_centroids{};
+    std::vector<std::array<double, 2>> centroids{};
+    std::unordered_set<int> used_indices{};
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, data.size() - 1);
 
     while (centroids.size() < k) {
         int index = dis(gen);
-        double centroid = data[index];
-        if (seen_centroids.insert(centroid).second) {
-            centroids.push_back(centroid);
+        if (used_indices.insert(index).second) {
+            centroids.push_back(data[index]);
         }
     }
     return centroids;
