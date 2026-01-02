@@ -18,7 +18,7 @@ std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, co
     std::vector<std::vector<std::array<double,2>>> clusters(k);
     
     int iterations { };
-    constexpr int max_iters { 10 };
+    constexpr int max_iters { 2 };
 
     while (iterations <= max_iters) {
         // Start with empty clusters at each iteration
@@ -34,6 +34,8 @@ std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, co
         for (int i = 0; i < k; ++i) {
             centroids[i] = getNewCentroid(clusters[i]);
         }
+        // Compute objective here
+        double loss = objective(clusters);
         ++iterations;
     }
     return clusters;
@@ -83,6 +85,20 @@ std::vector<std::array<double, 2>> initializeCentroids(const int k, const std::v
         }
     }
     return centroids;
+}
+
+double objective(const std::vector<std::vector<std::array<double,2>>> &clusters) {
+    double loss = 0;
+
+    for (const auto &cluster: clusters) {
+        auto centroid = getNewCentroid(cluster);
+
+        for (const auto &point : cluster) {
+            loss += pow(point[0] - centroid[0], 2)
+                 +  pow(point[1] - centroid[1], 2);
+        }
+    }
+    return loss;
 }
 
 PYBIND11_MODULE(kmeans, m) {
