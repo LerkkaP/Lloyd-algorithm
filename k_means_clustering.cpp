@@ -6,14 +6,15 @@
 #include <numeric>
 #include <random>
 #include <unordered_set>
+#include <utility>
 
 int getClosestCluster(std::array<double, 2> point, const std::vector<std::array<double, 2>> &centroids);
 std::array<double, 2> getNewCentroid(const std::vector<std::array<double,2>> &cluster);
-std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data);
+std::pair<std::vector<std::vector<std::array<double,2>>>, std::vector<double>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data);
 std::vector<std::array<double, 2>> initializeCentroids(const int k, const std::vector<std::array<double, 2>> &data);
 double objective(const std::vector<std::vector<std::array<double,2>>> &clusters);
 
-std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data)
+std::pair<std::vector<std::vector<std::array<double,2>>>, std::vector<double>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data)
 {   
     std::vector<std::array<double, 2>> centroids{initializeCentroids(k, data)};
     std::vector<std::vector<std::array<double,2>>> clusters(k);
@@ -45,7 +46,7 @@ std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, co
         }
         prev_loss = loss;
     }
-    return clusters;
+    return {clusters, losses};
 }
 
 int getClosestCluster(std::array<double, 2> point, const std::vector<std::array<double, 2>> &centroids) 

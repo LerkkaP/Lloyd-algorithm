@@ -17,3 +17,13 @@ def plot_clusters_2d(k, clusters):
     plt.legend()
     plt.grid(True)
     plt.savefig("clusters.png")
+
+def plot_loss(losses):
+    sns.set_theme()
+    plt.figure(figsize=(6,6))
+    plt.plot(losses)
+    plt.xlabel("Iteration")
+    plt.ylabel("Loss")
+    plt.title("Loss function")
+    plt.grid(True)
+    plt.savefig("loss.png")
