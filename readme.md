@@ -5,9 +5,9 @@ This repository contains a C++ implementation of Lloyd's algorithm. The core alg
 Lloyd's algorithm is a iterative method used to perform K-means clustering. Given sets $C_1, \dots, C_K$ containing the indices of each cluster, the K-means algorithm tries to minimize the following objective:
 
 $$
-\min_{C_1, \dots, C_K} \left\{ 
+\min_{C_1, \dots, C_K} {
 \sum_{k=1}^{K} \frac{1}{|C_k|} \sum_{i, i' \in C_k} \sum_{j=1}^{p} (x_{ij} - x_{i'j})^2
-\right\}.
+}.
 $$
 
 This optimization problem we would like to solve is very hard. Therefore, we can use **Lloyd's algorithm**, which iteratively updates cluster assignments and centroids and **guarantees convergence to a local optimum** of the objective function. We can formulate the objective in terms of cluster centroids as
