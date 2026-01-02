@@ -11,16 +11,19 @@ int getClosestCluster(std::array<double, 2> point, const std::vector<std::array<
 std::array<double, 2> getNewCentroid(const std::vector<std::array<double,2>> &cluster);
 std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data);
 std::vector<std::array<double, 2>> initializeCentroids(const int k, const std::vector<std::array<double, 2>> &data);
+double objective(const std::vector<std::vector<std::array<double,2>>> &clusters);
 
 std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, const std::vector<std::array<double, 2>> &data)
 {   
     std::vector<std::array<double, 2>> centroids{initializeCentroids(k, data)};
     std::vector<std::vector<std::array<double,2>>> clusters(k);
-    
-    int iterations { };
-    constexpr int max_iters { 2 };
+    std::vector<double> losses;
 
-    while (iterations <= max_iters) {
+    constexpr double epsilon = 1e-6;
+    double prev_loss = std::numeric_limits<double>::max();
+    double loss = 0.0;
+
+    while (true) {
         // Start with empty clusters at each iteration
         clusters = std::vector<std::vector<std::array<double,2>>>(k);
 
@@ -34,9 +37,13 @@ std::vector<std::vector<std::array<double, 2>>> kMeansClustering(const int k, co
         for (int i = 0; i < k; ++i) {
             centroids[i] = getNewCentroid(clusters[i]);
         }
-        // Compute objective here
-        double loss = objective(clusters);
-        ++iterations;
+        loss = objective(clusters);
+        losses.push_back(loss);
+
+        if (std::abs(prev_loss - loss) < epsilon) {
+            break;
+        }
+        prev_loss = loss;
     }
     return clusters;
 }
